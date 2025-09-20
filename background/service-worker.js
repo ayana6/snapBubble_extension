@@ -62,18 +62,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
           }
         } catch {}
-        try {
-          const bodyStr = typeof init.body === 'string' ? init.body : null;
-          if (bodyStr && /\/v1\/ocr/.test(msg.url)) {
-            const len = bodyStr.length;
-            const head = bodyStr.slice(0, 120);
-            console.log(`[SB_FETCH] POST ${msg.url} jsonLen=${len} head=${head}`);
-          }
-          if (/api\.ocr\.space\//.test(msg.url)) {
-            const formMode = !!msg.formFields || !!msg.formBinary;
-            console.log(`[SB_FETCH] DIRECT OCR → ${msg.url} form=${formMode}`);
-          }
-        } catch {}
         if (msg.formFields && typeof msg.formFields === 'object') {
           const fd = new FormData();
           for (const [k, v] of Object.entries(msg.formFields)) {
@@ -103,23 +91,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         const resp = await fetch(msg.url, init);
         const headers = Array.from(resp.headers.entries());
-        try {
-          const keySrc = resp.headers.get('x-key-source');
-          if (keySrc) {
-            const lbl = keySrc;
-            try {
-              chrome.tabs.query({}, (tabs) => {
-                for (const t of (tabs||[])) {
-                  try {
-                    const url = t?.url || '';
-                    if (!/^https?:|^file:|^blob:/.test(url)) continue;
-                    chrome.tabs.sendMessage(t.id, { type: 'SB_KEY_SRC', value: lbl }, () => void chrome.runtime.lastError);
-                  } catch {}
-                }
-              });
-            } catch {}
-          }
-        } catch {}
         if (msg.returnType === 'arrayBuffer') {
           const ab = await resp.arrayBuffer();
           const b64 = arrayBufferToBase64(ab);

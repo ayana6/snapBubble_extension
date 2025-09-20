@@ -12,15 +12,16 @@
 
 SnapBubble is a browser extension that performs OCR (Optical Character Recognition) on text within images and overlays translations directly on web pages. This tool is designed for academic research, accessibility purposes, and personal study.
 
-### Key Features
+### What’s new
 
-- **Multi-language OCR**: Supports 15+ languages including Chinese, Japanese, Korean, Arabic, and European languages
-- **Multiple Translation Providers**: OpenAI GPT, Google Gemini (Flash, Pro, 2.0), DeepL
-- **Pure Client-Side**: No backend, no server - everything runs in your browser
-- **Direct API Calls**: Extension communicates directly with OCR.space and translation APIs
-- **Smart Text Detection**: Advanced clustering algorithm groups words into speech bubbles
-- **Real-time Overlay**: Translations appear directly on the page without downloads
-- **Configurable OCR Engines**: Choose between different OCR.space API engines for quality vs speed
+- **Batch translation** (chapter-level or per-image): collect all bubble text and translate in one/few calls. less API noise, faster.
+- **Progressive rendering**: overlays show up as soon as each image finishes (no long waits).
+- **Gemini 2.5 Flash** as default Gemini model. Clean provider list in the popup.
+- **Manual Select** (drag area) with one overlay per speech bubble – no more tiny stacked tags.
+- **One-bubble grouping**: simple neighbor logic that merges words into a single bubble box. Works for vertical and horizontal layouts.
+- **HiDPI overlays**: crisp text on retina/zoomed displays.
+- **Timeouts & stability**: OCR/requests won’t hang; automatic retry/guards.
+- **Keyboard shortcuts** (Win/Mac) + small HUD improvements.
 
 ---
 
@@ -68,10 +69,26 @@ SnapBubble is a browser extension that performs OCR (Optical Character Recogniti
 - High-quality translations
 
 #### Google Gemini
-- **Flash**: Fast and efficient
-- **Pro**: Higher quality, slower
-- **2.0**: Latest experimental model
+- **2.5 Flash** (default): fast, good quality, practical limits
+- **1.5 Pro** / **2.0** also available if you need them
 - Requires API key
+
+### Keyboard Shortcuts
+
+- Cross‑platform (Windows/Mac)
+- Quick help in the HUD (Ctrl/Cmd + Alt + H)
+- Clear error tracker (Ctrl/Cmd + Alt + E)
+- Manual select toggle (Ctrl/Cmd + Alt + S)
+
+<div align="center">
+  <img src="shortcuts.png" alt="SnapBubble Shortcuts" style="max-width: 720px; width: 100%; border: 1px solid #ddd; border-radius: 6px;" />
+  <br/>
+  <em>Handy shortcuts to speed up your workflow</em>
+</div>
+
+### Community
+
+- Discord: [`https://discord.gg/vckeW3cXxS`](https://discord.gg/vckeW3cXxS)
 
 #### DeepL
 - Requires API key
@@ -162,15 +179,23 @@ The green debug panel shows:
 ### Project Structure
 ```
 /
-├── manifest.json          # Extension manifest
-├── background/            # Service worker
-├── content/              # Content script
-├── popup/                # Extension popup UI
-├── lib/                  # Core functionality
-│   ├── utils.js         # Settings and utilities
-│   ├── ocr.js           # OCR processing
-│   ├── translate.js     # Translation logic
-│   └── overlay.js       # Text overlay rendering
+├── manifest.json            # Extension manifest (MV3)
+├── background/              # Service worker
+│   └── service-worker.js
+├── content/                 # Content script pipeline
+│   └── content.js           # scanning, OCR, batching, overlays
+├── popup/                   # Popup UI
+│   ├── popup.html
+│   ├── popup.css
+│   └── popup.js
+├── lib/                     # Core modules
+│   ├── utils.js             # settings, storage, error tracker
+│   ├── ocr.js               # OCR.space + capture helpers
+│   ├── ai_ocr.js            # OpenAI/Gemini vision OCR
+│   ├── translate.js         # OpenAI/Gemini/DeepL translators
+│   ├── overlay.js           # canvas overlay drawing
+│   ├── manual-select.js     # drag-to-translate tool
+│   └── segmentation.js      # word→bubble grouping (shared)
 └── README.md
 ```
 

@@ -3,14 +3,12 @@ import { loadSettings, saveSettings, resetSettings, getDefaultSettings } from ".
 const els = {
   forceOcrLang: document.getElementById("forceOcrLang"),
   targetLanguage: document.getElementById("targetLanguage"),
-  ocrProvider: document.getElementById("ocrProvider"),
   ocrEngine: document.getElementById("ocrEngine"),
   ocrApiKey: document.getElementById("ocrApiKey"),
   translateProvider: document.getElementById("translateProvider"),
   openaiModel: document.getElementById("openaiModel"),
   openaiModelRow: document.getElementById("openaiModelRow"),
   translateApiKey: document.getElementById("translateApiKey"),
-  libreEndpoint: document.getElementById("libreEndpoint"),
   minWidth: document.getElementById("minWidth"),
   minHeight: document.getElementById("minHeight"),
   fontFamily: document.getElementById("fontFamily"),
@@ -24,7 +22,8 @@ const els = {
   copyTranslateKey: document.getElementById("copyTranslateKey"),
   useAiOcr: document.getElementById("useAiOcr"),
   aiModel: document.getElementById("aiModel"),
-  aiModelRow: document.getElementById("aiModelRow")
+  aiModelRow: document.getElementById("aiModelRow"),
+  batchProcessing: document.getElementById("batchProcessing")
 };
 
 async function init() {
@@ -33,20 +32,19 @@ async function init() {
   
   if (els.forceOcrLang) els.forceOcrLang.value = s.forceOcrLang || def.forceOcrLang || "";
   if (els.targetLanguage) els.targetLanguage.value = s.targetLanguage || def.targetLanguage || "en";
-  if (els.ocrProvider) els.ocrProvider.value = s.ocrProvider || def.ocrProvider || "ocrspace";
   if (els.ocrEngine) els.ocrEngine.value = s.ocrEngine || def.ocrEngine || "1";
-  if (els.translateProvider) els.translateProvider.value = s.translateProvider || def.translateProvider || "openai";
+  if (els.translateProvider) els.translateProvider.value = s.translateProvider || def.translateProvider || "gemini";
   if (els.openaiModel) els.openaiModel.value = s.openaiModel || def.openaiModel || "gpt-4o-mini";
-  if (els.libreEndpoint) els.libreEndpoint.value = s.libreEndpoint || def.libreEndpoint || "https://libretranslate.com/translate";
   if (els.minWidth) els.minWidth.value = (s.minImageSize?.width ?? def.minImageSize?.width ?? 220).toString();
   if (els.minHeight) els.minHeight.value = (s.minImageSize?.height ?? def.minImageSize?.height ?? 220).toString();
   if (els.fontFamily) els.fontFamily.value = s.fontFamily || def.fontFamily || "Arial, sans-serif";
   if (els.textSize) els.textSize.value = (s.textSize ?? def.textSize ?? 16).toString();
   if (els.useAiOcr) els.useAiOcr.checked = s.useAiOcr || false;
-  if (els.aiModel) els.aiModel.value = s.aiModel || "gemini-2-flash";
+  if (els.aiModel) els.aiModel.value = s.aiModel || "gemini-2.5-flash";
+  if (els.batchProcessing) els.batchProcessing.checked = s.batchProcessing || false;
   
   if (els.aiModelRow) {
-    els.aiModelRow.style.display = "none";
+    els.aiModelRow.style.display = els.useAiOcr?.checked ? "flex" : "none";
   }
   if (els.openaiModelRow) {
     els.openaiModelRow.style.display = (els.translateProvider?.value === 'openai') ? "flex" : "none";
@@ -61,16 +59,15 @@ async function save() {
   const def = getDefaultSettings();
   s.forceOcrLang = els.forceOcrLang?.value ?? def.forceOcrLang;
   s.targetLanguage = els.targetLanguage?.value ?? def.targetLanguage;
-  s.ocrProvider = els.ocrProvider?.value || def.ocrProvider;
   s.ocrEngine = els.ocrEngine?.value || def.ocrEngine;
   s.translateProvider = els.translateProvider?.value || def.translateProvider;
   s.openaiModel = els.openaiModel?.value || def.openaiModel;
-  s.libreEndpoint = els.libreEndpoint?.value || def.libreEndpoint;
   s.minImageSize = { width: Number(els.minWidth?.value || def.minImageSize.width), height: Number(els.minHeight?.value || def.minImageSize.height) };
   s.fontFamily = els.fontFamily?.value ?? def.fontFamily;
   s.textSize = Number(els.textSize?.value ?? def.textSize);
   s.useAiOcr = els.useAiOcr?.checked || false;
-  s.aiModel = els.aiModel?.value || "gemini-2-flash";
+  s.aiModel = els.aiModel?.value || "gemini-2.5-flash";
+  s.batchProcessing = els.batchProcessing?.checked || false;
   await saveSettings(s);
 }
 
@@ -173,6 +170,8 @@ els.useAiOcr?.addEventListener('change', () => {
   save();
 });
 
+els.batchProcessing?.addEventListener('change', save);
+
 els.aiModel?.addEventListener('change', save);
 
 els.translateProvider?.addEventListener('change', () => {
@@ -191,7 +190,6 @@ function syncAiUi() {
   if (els.ocrApiKey) els.ocrApiKey.disabled = aiOn;
   if (els.copyOcrKey) els.copyOcrKey.disabled = aiOn;
 
-
   const visionProviders = new Set(['openai', 'gemini', 'gemini-pro', 'gemini-2']);
   if (els.translateProvider) {
     const opts = Array.from(els.translateProvider.options || []);
@@ -204,7 +202,7 @@ function syncAiUi() {
     }
   }
 
-  if (els.aiModelRow) els.aiModelRow.style.display = 'none';
+  if (els.aiModelRow) els.aiModelRow.style.display = aiOn ? 'flex' : 'none';
 }
 
 [els.fontFamily, els.textSize, els.forceOcrLang, els.targetLanguage, els.ocrProvider, els.ocrEngine, els.translateProvider, els.minWidth, els.minHeight].forEach(el => {
