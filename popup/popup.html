@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
 <head>
@@ -11,12 +12,15 @@
   <header class="header">
     <img id="logo" src="../SnapBubble-01.png" alt="SnapBubble" class="logo"/>
     <h3 class="title">SnapBubble</h3>
-    <span id="status" class="status">Ready</span>
+    <span id="status" class="status">V2.2.0</span>
   </header>
+  <div class="note" style="text-align:center;font-size:12px;margin:4px 0 8px;">
+    Ctrl/Cmd+Alt+H: Show shortcuts
+  </div>
 
   <div class="settings-container">
     <div class="row">
-    <label>OCR Language:</label>
+    <label title="Language hint for OCR.space. Leave Auto to detect.">OCR Language:</label>
     <select id="forceOcrLang">
       <option value="">Auto</option>
       <option value="eng">English</option>
@@ -28,12 +32,12 @@
   </div>
 
   <div class="row">
-    <label>Target Language:</label>
-    <input id="targetLanguage" type="text" placeholder="en, ar, fr, ..." />
+    <label title="ISO code for translation output (e.g., en, fr, es).">Target Language:</label>
+    <input id="targetLanguage" type="text" placeholder="en, ar, fr, ..." title="ISO code for translation output (e.g., en, fr, es)." />
   </div>
 
   <div class="row">
-    <label>OCR Engine:</label>
+    <label title="OCR.space engine: 1 Basic, 2 Advanced, 3 Legacy.">OCR Engine:</label>
     <select id="ocrEngine">
       <option value="1">API 1 (Basic)</option>
       <option value="2">API 2 (Advanced)</option>
@@ -42,22 +46,29 @@
   </div>
 
   <div class="row">
-    <label>
+    <label class="inline-label" title="Use AI Vision for both OCR and translation (requires Translation API key).">
       <input type="checkbox" id="useAiOcr" style="margin-right: 8px;" />
       Use AI for OCR + Translation
     </label>
   </div>
 
   <div class="row">
-    <label>
+    <label class="inline-label" title="AI OCR only. Groups images for fewer API calls and faster total time.">
       <input type="checkbox" id="batchProcessing" style="margin-right: 8px;" />
       Batch Processing
     </label>
     <span style="font-size: 12px; color: #666; margin-left: 8px;">Process multiple images together for better efficiency (AI OCR only)</span>
   </div>
 
+  <div class="row">
+    <label class="inline-label" title="Show extra details in the green HUD (slower; off recommended).">
+      <input type="checkbox" id="debugEnabled" style="margin-right: 8px;" />
+      Debug: show raw/grouped/translated in HUD
+    </label>
+  </div>
+
   <div class="row" id="aiModelRow" style="display: none;">
-    <label>AI Model:</label>
+    <label title="Vision model used for AI OCR and translation boxes.">AI Model:</label>
     <select id="aiModel">
       <option value="gemini-2.5-flash">Gemini 2.5 Flash (10 RPM, 250K TPM)</option>
       <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
@@ -67,48 +78,77 @@
   </div>
 
   <div class="row">
-    <label>OCR API Key:</label>
+    <label title="Your OCR.space API key (used when AI OCR is OFF).">OCR API Key:</label>
     <div style="display: flex; gap: 4px; flex: 1;">
       <input id="ocrApiKey" type="password" placeholder="OCR.Space API key" style="flex: 1;" />
       <button id="copyOcrKey" class="btn btn-ghost" title="Copy OCR API Key" style="padding: 6px; min-width: 32px;">📋</button>
+      <button id="testOcrKey" class="btn btn-ghost" title="Test OCR API Key" style="padding: 6px; min-width: 32px;">🧪</button>
     </div>
   </div>
 
   <div class="row">
-    <label>Translation Provider:</label>
+    <label title="Choose translation backend. Gemini 2.5 Flash recommended for speed.">Translation Provider:</label>
     <select id="translateProvider">
       <option value="openai">OpenAI GPT</option>
-      <option value="gemini" selected>Gemini 2.5 Flash (10 RPM, 250K TPM)</option>
+      <option value="gemini" selected>Gemini</option>
       <option value="gemini-pro">Gemini Pro</option>
       <option value="gemini-2">Gemini 2</option>
       <option value="deepl">DeepL</option>
     </select>
   </div>
 
+  <div class="row" id="geminiTierRow">
+    <label title="Increase limits if you have Tier 1 quotas.">Gemini Tier 1:</label>
+    <input type="checkbox" id="geminiTier1" />
+  </div>
+
+  <div class="row" id="geminiModelRow">
+    <label title="Pick Gemini model for translation.">Gemini Model:</label>
+    <select id="geminiModel">
+      <option value="gemini-2.0-flash">Gemini 2.0 Flash (Free ~15 RPM) — recommended</option>
+      <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash‑Lite (Free ~30 RPM)</option>
+      <option value="gemini-2.5-flash">Gemini 2.5 Flash (Free ~10 RPM / Tier1 higher)</option>
+    </select>
+  </div>
+
+  <div class="row" id="translateApiKeyRow">
+    <label title="Primary translation key. You can add more below.">Translation API Key:</label>
+    <div style="display: flex; gap: 4px; flex: 1;">
+      <input id="translateApiKey" type="password" placeholder="API key for translation" style="flex: 1;" />
+      <button id="copyTranslateKey" class="btn btn-ghost" title="Copy Translation API Key" style="padding: 6px; min-width: 32px;">📋</button>
+      <button id="testTranslatePrimaryKey" class="btn btn-ghost" title="Test Translation API Key" style="padding: 6px; min-width: 32px;">🧪</button>
+    </div>
+  </div>
+
+  <div class="row" id="translateKeysRow">
+    <label title="Used in order. On quota/invalid, we try the next.">API Keys (tried in order):</label>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1;">
+      <div style="display:flex; gap:6px;">
+        <button id="addTranslateKey" class="btn btn-secondary" title="Add another API key">＋ Add key</button>
+        <button id="testTranslateKeys" class="btn btn-outline" title="Validate the keys with a quick, low-cost request">Test keys</button>
+      </div>
+      <div id="translateKeysList" style="display:flex; flex-direction:column; gap:6px;"></div>
+      <div id="translateKeysStatus" class="note"></div>
+    </div>
+  </div>
+
   <div class="row" id="openaiModelRow" style="display: none;">
-    <label>OpenAI Model:</label>
+    <label title="Model used when provider is OpenAI.">OpenAI Model:</label>
     <select id="openaiModel">
       <option value="gpt-4o-mini">GPT-4o Mini</option>
       <option value="gpt-4o">GPT-4o</option>
     </select>
   </div>
 
+
   <div class="row">
-    <label>Translation API Key:</label>
-    <div style="display: flex; gap: 4px; flex: 1;">
-      <input id="translateApiKey" type="password" placeholder="API key for translation" style="flex: 1;" />
-      <button id="copyTranslateKey" class="btn btn-ghost" title="Copy Translation API Key" style="padding: 6px; min-width: 32px;">📋</button>
-    </div>
+    <label title="Minimum natural image size to process (width × height).">Min Image Size:</label>
+    <input id="minWidth" type="text" style="width:60px" title="Min width" /> ×
+    <input id="minHeight" type="text" style="width:60px" title="Min height" />
   </div>
 
   <div class="row">
-    <label>Min Image Size:</label>
-    <input id="minWidth" type="text" style="width:60px" /> ×
-    <input id="minHeight" type="text" style="width:60px" />
-  </div>
-
-  <div class="row">
-    <label>Font Family:</label>
+    <label title="Font used in overlay text.">Font Family:</label>
     <select id="fontFamily">
       <option value="Arial, sans-serif">Arial</option>
       <option value="Helvetica, sans-serif">Helvetica</option>
@@ -124,7 +164,7 @@
   </div>
 
   <div class="row">
-    <label>Text Size:</label>
+    <label title="Overlay text size.">Text Size:</label>
     <select id="textSize">
       <option value="12">12px</option>
       <option value="14">14px</option>

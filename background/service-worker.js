@@ -113,15 +113,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const winId = sender?.tab?.windowId;
       const doCapture = (windowId) => {
         try {
-          const options = { format: 'png', quality: 100 };
+          const options = { format: 'jpeg', quality: 85 };
           if (typeof windowId === 'number') {
             chrome.tabs.captureVisibleTab(windowId, options, (dataUrl) => {
-              if (chrome.runtime.lastError || !dataUrl) return sendResponse({ ok: false, error: chrome.runtime.lastError?.message || 'capture_failed' });
+              if (chrome.runtime.lastError || !dataUrl) {
+                return chrome.tabs.captureVisibleTab(windowId, { format: 'png', quality: 100 }, (dataUrl2) => {
+                  if (chrome.runtime.lastError || !dataUrl2) return sendResponse({ ok: false, error: chrome.runtime.lastError?.message || 'capture_failed' });
+                  return sendResponse({ ok: true, dataUrl: dataUrl2 });
+                });
+              }
               return sendResponse({ ok: true, dataUrl });
             });
           } else {
             chrome.tabs.captureVisibleTab(options, (dataUrl) => {
-              if (chrome.runtime.lastError || !dataUrl) return sendResponse({ ok: false, error: chrome.runtime.lastError?.message || 'capture_failed' });
+              if (chrome.runtime.lastError || !dataUrl) {
+                return chrome.tabs.captureVisibleTab({ format: 'png', quality: 100 }, (dataUrl2) => {
+                  if (chrome.runtime.lastError || !dataUrl2) return sendResponse({ ok: false, error: chrome.runtime.lastError?.message || 'capture_failed' });
+                  return sendResponse({ ok: true, dataUrl: dataUrl2 });
+                });
+              }
               return sendResponse({ ok: true, dataUrl });
             });
           }
@@ -139,7 +149,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     (async () => {
       try {
         const { url, engine, language, apiKey } = msg;
-        // Fetch the image with sender page referrer
         const pageUrl = sender?.tab?.url || '';
         const r = await fetch(url, { method: 'GET', credentials: 'include', referrer: pageUrl, referrerPolicy: 'strict-origin-when-cross-origin' });
         if (!r.ok) {
@@ -151,7 +160,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const ct = (r.headers.get('content-type') || 'image/jpeg').split(';')[0];
         const dataUrl = `data:${ct};base64,${b64}`;
         
-        // Call OCR.space API
         const form = new FormData();
         form.set('base64Image', dataUrl);
         form.set('isOverlayRequired', 'true');
